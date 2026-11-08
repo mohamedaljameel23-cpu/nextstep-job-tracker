@@ -1,0 +1,46 @@
+services:
+  database:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: nextstep
+      POSTGRES_USER: nextstep
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env file}
+    volumes:
+      - nextstep-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nextstep -d nextstep"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: production
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in the root .env file}
+      DATABASE_URL: postgresql+psycopg://nextstep:${POSTGRES_PASSWORD}@database:5432/nextstep
+      FRONTEND_ORIGINS: ${FRONTEND_ORIGINS:-http://localhost:8080}
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  nextstep-postgres:
+

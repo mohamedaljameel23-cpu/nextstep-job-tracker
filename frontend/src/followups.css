@@ -1,0 +1,5 @@
+.follow-panel .panel-heading.compact{gap:10px}
+.overdue-count{flex:none;padding:5px 8px;border:1px solid #f0dfd9;border-radius:999px;background:#fff8f5;color:#ad7165;font-size:8px;font-weight:650}
+.upcoming-item.is-overdue .date-tile{border-color:#efddd7;background:#fbf0ec;color:#a86d60}
+.upcoming-item.is-overdue .upcoming-copy small{color:#ad7165;font-weight:650}
+.upcoming-item .upcoming-copy small{font-variant-numeric:tabular-nums}
